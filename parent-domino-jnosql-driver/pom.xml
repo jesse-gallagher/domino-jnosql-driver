@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>org.openntf</groupId>
+	<artifactId>parent-domino-jnosql-driver</artifactId>
+	<version>0.0.4-SNAPSHOT</version>
+	<name>Domino driver components for JNoSQL</name>
+	<url>http://openntf.org</url>
+	<packaging>pom</packaging>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compile.targetLevel>1.8</maven.compile.targetLevel>
+		<maven.compile.sourceLevel>1.8</maven.compile.sourceLevel>
+        <maven.compile.version>3.5.1</maven.compile.version>
+		<maven.source.version>3.0.1</maven.source.version>
+		<maven.javadoc.version>3.0.0</maven.javadoc.version>
+
+        <tycho-version>1.0.0</tycho-version>
+		<jnosql-version>0.0.4-SNAPSHOT</jnosql-version>
+		<hamcrest-all.version>1.3</hamcrest-all.version>
+		<junit-version>4.11</junit-version>
+		<weld-version>2.4.6.Final</weld-version>
+		<oda-version>4.2.1</oda-version>
+	</properties>
+
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Jesse Gallagher</name>
+			<email>jesse@secondfoundation.org</email>
+			<organization>OpenNTF</organization>
+			<organizationUrl>http://openntf.org</organizationUrl>
+		</developer>
+	</developers>
+	
+	<repositories>
+		<repository>
+			<id>openntf</id>
+			<url>https://artifactory.openntf.org/all</url>
+		</repository>
+	</repositories>
+
+	<modules>
+		<module>domino-jnosql-diana-driver</module>
+	</modules>
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>${junit-version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>${maven.compile.version}</version>
+					<configuration>
+						<target>1.8</target>
+						<source>1.8</source>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>${maven.source.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>${maven.javadoc.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>com.mycila</groupId>
+					<artifactId>license-maven-plugin</artifactId>
+					<version>3.0</version>
+					<configuration>
+						<aggregate>true</aggregate>
+						<header>../license.txt</header>
+						<excludes>
+							<exclude>**/*.Plugin</exclude>
+							<exclude>**/.darwino</exclude>
+							<exclude>**/pom.xml</exclude>
+							<exclude>**/.*project</exclude>
+						</excludes>
+						<properties>
+							<owner>Jesse Gallagher</owner>
+						</properties>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.12.4</version>
+					<configuration>
+						<skip>true</skip>
+						<encoding>UTF-8</encoding>
+						<inputEncoding>UTF-8</inputEncoding>
+						<outputEncoding>UTF-8</outputEncoding>
+						<argLine>@{argLine} -ea -Dfile.encoding=UTF-8</argLine>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+	
+	<profiles>
+		<!--
+			These profiles add support for specific platforms for tests
+		-->
+		<profile>
+			<id>tests-windows</id>
+			<activation>
+				<os>
+					<family>Windows</family>
+				</os>
+				<property>
+					<name>notes-program</name>
+				</property>
+			</activation>
+		
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-surefire-plugin</artifactId>
+						
+						<configuration>
+							<skip>false</skip>
+							
+							<argLine>@{argLine} -Dfile.encoding=UTF-8 -Djava.library.path="${notes-program}"</argLine>
+							<environmentVariables>
+								<PATH>${notes-program}${path.separator}${env.PATH}</PATH>
+							</environmentVariables>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>tests-dos</id>
+			<activation>
+				<os>
+					<family>dos</family>
+				</os>
+				<property>
+					<name>notes-program</name>
+				</property>
+			</activation>
+		
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-surefire-plugin</artifactId>
+						
+						<configuration>
+							<skip>false</skip>
+							
+							<argLine>@{argLine} -Dfile.encoding=UTF-8 -Djava.library.path="${notes-program}"</argLine>
+							<environmentVariables>
+								<PATH>${notes-program}${path.separator}${env.PATH}</PATH>
+							</environmentVariables>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>mac</id>
+			<activation>
+				<os>
+					<family>mac</family>
+				</os>
+				<property>
+					<name>notes-program</name>
+				</property>
+			</activation>
+		
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-surefire-plugin</artifactId>
+						
+						<configuration>
+							<skip>false</skip>
+							
+							<argLine>-Dfile.encoding=UTF-8 -Djava.library.path="${notes-program}"</argLine>
+							<systemPropertyVariables>
+								<java.library.path>${notes-program}</java.library.path>
+							</systemPropertyVariables>
+<!-- 							<environmentVariables> -->
+<!-- 								<Notes_ExecDirectory>${notes-program}</Notes_ExecDirectory> -->
+<!-- 								<PATH>${notes-program}${path.separator}${env.PATH}</PATH> -->
+<!-- 								<LD_LIBRARY_PATH>${notes-program}${path.separator}${env.LD_LIBRARY_PATH}</LD_LIBRARY_PATH> -->
+<!-- 								<DYLD_LIBRARY_PATH>${notes-program}${path.separator}${env.DYLD_LIBRARY_PATH}</DYLD_LIBRARY_PATH> -->
+<!-- 							</environmentVariables> -->
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>linux</id>
+			<activation>
+				<os>
+					<family>unix</family>
+					<name>linux</name>
+				</os>
+				<property>
+					<name>notes-program</name>
+				</property>
+			</activation>
+		
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-surefire-plugin</artifactId>
+						
+						<configuration>
+							<skip>false</skip>
+							
+							<argLine>@{argLine} -Dfile.encoding=UTF-8 -Djava.library.path="${notes-program}"</argLine>
+							<environmentVariables>
+								<!-- The res/C path entry is important for loading formula language properly -->
+								<PATH>${notes-program}${path.separator}${notes-program}/res/C${path.separator}${notes-data}${path.separator}${env.PATH}</PATH>
+								<LD_LIBRARY_PATH>${notes-program}${path.separator}${env.LD_LIBRARY_PATH}</LD_LIBRARY_PATH>
+								
+								<!-- Notes-standard environment variable to specify the program directory -->
+								<Notes_ExecDirectory>${notes-program}</Notes_ExecDirectory>
+								<Directory>${notes-data}</Directory>
+								
+								<!-- Linux generally requires that the notes.ini path be specified manually, since it's difficult to determine automatically -->
+								<!-- This variable is a convention used in the NAPI test classes, not Notes-standard -->
+								<NotesINI>${notes-ini}</NotesINI>
+							</environmentVariables>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>

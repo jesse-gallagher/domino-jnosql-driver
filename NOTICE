@@ -1,0 +1,5 @@
+# Domino JNoSQL Driver
+
+Copright 2017 Jesse Gallagher
+
+This project includes code from the JNoSQL Diana Couchbase driver by Otavia Santana and others, available from [https://github.com/eclipse/jnosql-diana-driver/tree/master/couchbase-driver](https://github.com/eclipse/jnosql-diana-driver/tree/master/couchbase-driver) and licensed under both Apache 2.0 and the Eclipse Public License, used here as Apache 2.0.
