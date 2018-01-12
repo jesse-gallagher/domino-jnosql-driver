@@ -19,7 +19,7 @@
  * https://github.com/eclipse/jnosql-diana-driver/tree/master/couchbase-driver
  * https://github.com/eclipse/jnosql-artemis-extension/tree/master/couchbase-extension
  */
-package org.darwino.jnosql.diana.driver;
+package org.openntf.domino.jnosql.diana.document;
 
 import org.jnosql.diana.api.TypeReference;
 import org.jnosql.diana.api.document.Document;

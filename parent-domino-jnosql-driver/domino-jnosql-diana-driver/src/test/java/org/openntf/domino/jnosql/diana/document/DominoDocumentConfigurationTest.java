@@ -19,36 +19,31 @@
  * https://github.com/eclipse/jnosql-diana-driver/tree/master/couchbase-driver
  * https://github.com/eclipse/jnosql-artemis-extension/tree/master/couchbase-extension
  */
-package org.darwino.jnosql.diana.driver;
+package org.openntf.domino.jnosql.diana.document;
 
-import org.junit.Before;
+import org.jnosql.diana.api.document.DocumentCollectionManagerFactory;
 import org.junit.Test;
-import org.openntf.domino.jnosql.diana.document.DominoDocumentCollectionManagerFactory;
 import org.openntf.domino.jnosql.diana.document.DominoDocumentConfiguration;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
-public class DominoDocumentCollectionManagerFactoryTest extends AbstractDominoAppTest {
 
-	private DominoDocumentConfiguration configuration;
+public class DominoDocumentConfigurationTest extends AbstractDominoAppTest  {
 
-	@Before
-	public void setUp() {
-		configuration = new DominoDocumentConfiguration();
-
-	}
-
-	@SuppressWarnings("resource")
+    @SuppressWarnings({ "rawtypes" })
 	@Test
-	public void shouldCreateEntityManager() {
-		DominoDocumentCollectionManagerFactory factory = configuration.get();
-		assertNotNull(factory.get(BLANK_DB));
-	}
+    public void shouldCreateDocumentCollectionManagerFactoryByMap() {
 
-	@SuppressWarnings("resource")
+        DominoDocumentConfiguration configuration = new DominoDocumentConfiguration();
+        DocumentCollectionManagerFactory managerFactory = configuration.get();
+        assertNotNull(managerFactory);
+    }
+
+    @SuppressWarnings({ "rawtypes" })
 	@Test
-	public void shouldCreateEntityManagerAsync() {
-		DominoDocumentCollectionManagerFactory factory = configuration.getAsync();
-		assertNotNull(factory.getAsync(BLANK_DB));
-	}
+    public void shouldCreateDocumentCollectionManagerFactoryByFile() {
+        DominoDocumentConfiguration configuration = new DominoDocumentConfiguration();
+        DocumentCollectionManagerFactory managerFactory = configuration.get();
+        assertNotNull(managerFactory);
+    }
 }

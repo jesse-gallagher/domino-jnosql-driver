@@ -42,6 +42,10 @@
 	</developers>
 	
 	<repositories>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
 		<repository>
 			<id>openntf</id>
 			<url>https://artifactory.openntf.org/all</url>
@@ -105,13 +109,13 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.12.4</version>
+					<version>2.20.1</version>
 					<configuration>
 						<skip>true</skip>
 						<encoding>UTF-8</encoding>
 						<inputEncoding>UTF-8</inputEncoding>
 						<outputEncoding>UTF-8</outputEncoding>
-						<argLine>@{argLine} -ea -Dfile.encoding=UTF-8</argLine>
+						<argLine>-ea -Dfile.encoding=UTF-8</argLine>
 					</configuration>
 				</plugin>
 			</plugins>
@@ -141,7 +145,7 @@
 						<configuration>
 							<skip>false</skip>
 							
-							<argLine>@{argLine} -Dfile.encoding=UTF-8 -Djava.library.path="${notes-program}"</argLine>
+							<argLine>-Dfile.encoding=UTF-8 -Djava.library.path="${notes-program}"</argLine>
 							<environmentVariables>
 								<PATH>${notes-program}${path.separator}${env.PATH}</PATH>
 							</environmentVariables>
@@ -169,7 +173,7 @@
 						<configuration>
 							<skip>false</skip>
 							
-							<argLine>@{argLine} -Dfile.encoding=UTF-8 -Djava.library.path="${notes-program}"</argLine>
+							<argLine>-Dfile.encoding=UTF-8 -Djava.library.path="${notes-program}"</argLine>
 							<environmentVariables>
 								<PATH>${notes-program}${path.separator}${env.PATH}</PATH>
 							</environmentVariables>
@@ -198,15 +202,15 @@
 							<skip>false</skip>
 							
 							<argLine>-Dfile.encoding=UTF-8 -Djava.library.path="${notes-program}"</argLine>
-							<systemPropertyVariables>
-								<java.library.path>${notes-program}</java.library.path>
-							</systemPropertyVariables>
-<!-- 							<environmentVariables> -->
-<!-- 								<Notes_ExecDirectory>${notes-program}</Notes_ExecDirectory> -->
-<!-- 								<PATH>${notes-program}${path.separator}${env.PATH}</PATH> -->
-<!-- 								<LD_LIBRARY_PATH>${notes-program}${path.separator}${env.LD_LIBRARY_PATH}</LD_LIBRARY_PATH> -->
-<!-- 								<DYLD_LIBRARY_PATH>${notes-program}${path.separator}${env.DYLD_LIBRARY_PATH}</DYLD_LIBRARY_PATH> -->
-<!-- 							</environmentVariables> -->
+							<useSystemClassLoader>false</useSystemClassLoader>
+							<forkMode>always</forkMode>
+							<workingDirectory>${notes-program}</workingDirectory>
+							<environmentVariables>
+								<PATH>${notes-program}${path.separator}${env.PATH}</PATH>
+								<LD_LIBRARY_PATH>${notes-program}${path.separator}${env.LD_LIBRARY_PATH}</LD_LIBRARY_PATH>
+								<DYLD_LIBRARY_PATH>${notes-program}${path.separator}${env.DYLD_LIBRARY_PATH}</DYLD_LIBRARY_PATH>
+								<Notes_ExecDirectory>${notes-program}</Notes_ExecDirectory>
+							</environmentVariables>
 						</configuration>
 					</plugin>
 				</plugins>
@@ -232,7 +236,7 @@
 						<configuration>
 							<skip>false</skip>
 							
-							<argLine>@{argLine} -Dfile.encoding=UTF-8 -Djava.library.path="${notes-program}"</argLine>
+							<argLine>-Dfile.encoding=UTF-8 -Djava.library.path="${notes-program}"</argLine>
 							<environmentVariables>
 								<!-- The res/C path entry is important for loading formula language properly -->
 								<PATH>${notes-program}${path.separator}${notes-program}/res/C${path.separator}${notes-data}${path.separator}${env.PATH}</PATH>

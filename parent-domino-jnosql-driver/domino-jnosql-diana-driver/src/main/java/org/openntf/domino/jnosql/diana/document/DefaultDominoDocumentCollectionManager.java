@@ -22,6 +22,8 @@
 package org.openntf.domino.jnosql.diana.document;
 
 import org.apache.commons.text.StrSubstitutor;
+import org.jnosql.diana.api.Sort;
+import org.jnosql.diana.api.Sort.SortType;
 import org.jnosql.diana.api.document.Document;
 import org.jnosql.diana.api.document.DocumentDeleteQuery;
 import org.jnosql.diana.api.document.DocumentEntity;
@@ -34,11 +36,13 @@ import com.ibm.commons.util.StringUtil;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 import static org.openntf.domino.jnosql.diana.document.EntityConverter.convert;
@@ -68,10 +72,12 @@ class DefaultDominoDocumentCollectionManager implements DominoDocumentCollection
 		}
 
 		String unid = StringUtil.toString(id.get());
-		org.openntf.domino.Document doc = database.createDocument();
-		doc.setUniversalID(unid);
+		org.openntf.domino.Document doc = database.getDocumentWithKey(unid, true);
 		doc.putAll(jsonObject);
 		doc.save();
+		if(database.isFTIndexed()) {
+			database.updateFTIndex(false);
+		}
 		return entity;
 	}
 
@@ -98,6 +104,9 @@ class DefaultDominoDocumentCollectionManager implements DominoDocumentCollection
 			}
 		}
 		doc.save();
+		if(database.isFTIndexed()) {
+			database.updateFTIndex(false);
+		}
 		return entity;
 	}
 
@@ -108,8 +117,12 @@ class DefaultDominoDocumentCollectionManager implements DominoDocumentCollection
 			DocumentCollection docs = database.search(delete);
 			docs.removeAll(false);
 		}
+		if(database.isFTIndexed()) {
+			database.updateFTIndex(false);
+		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<DocumentEntity> select(DocumentQuery query) throws NullPointerException {
 		String select = QueryConverter.select(query);
@@ -117,8 +130,54 @@ class DefaultDominoDocumentCollectionManager implements DominoDocumentCollection
 		if (StringUtil.isNotEmpty(select)) {
 			entities.addAll(convert(select, database));
 		}
-
-		return entities;
+		
+		// Do this the hard way
+		List<Sort> sorts = query.getSorts();
+		if(sorts != null) {
+			for(Sort sort : sorts) {
+				Collections.sort(entities, (a, b) -> {
+					String name = sort.getName();
+					Optional<Document> docA = a.find(name);
+					Optional<Document> docB = b.find(name);
+					
+					if(!docA.isPresent() && !docB.isPresent()) {
+						return 0;
+					}
+					
+					SortType type = sort.getType();
+					if(type == null) { type = SortType.ASC; }
+					switch(type) {
+					case DESC:
+						if(!docA.isPresent()) {
+							return 1;
+						} else if(!docB.isPresent()) {
+							return 0;
+						} else {
+							Comparable<Object> valA = docA.get().get(Comparable.class);
+							Comparable<Object> valB = docB.get().get(Comparable.class);
+							return -1 * valA.compareTo(valB);
+						}
+					case ASC:
+					default:
+						if(!docA.isPresent()) {
+							return 0;
+						} else if(!docB.isPresent()) {
+							return 1;
+						} else {
+							Comparable<Object> valA = docA.get().get(Comparable.class);
+							Comparable<Object> valB = docB.get().get(Comparable.class);
+							return valA.compareTo(valB);
+						}
+					}
+				});
+			}
+		}
+		
+		// Limit similarly
+		return entities.stream()
+			.skip(query.getFirstResult())
+			.limit(query.getMaxResults() < 1 ? entities.size() : query.getMaxResults())
+			.collect(Collectors.toList());
 	}
 
 	@Override

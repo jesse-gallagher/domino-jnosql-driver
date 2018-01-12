@@ -21,8 +21,6 @@
  */
 package org.openntf.domino.jnosql.diana.document;
 
-import org.jnosql.diana.api.Condition;
-import org.jnosql.diana.api.Sort.SortType;
 import org.jnosql.diana.api.TypeReference;
 import org.jnosql.diana.api.document.Document;
 import org.jnosql.diana.api.document.DocumentCondition;
@@ -34,13 +32,9 @@ import com.ibm.commons.util.StringUtil;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.jnosql.diana.api.Condition.IN;
 
 /**
  * Assistant class to convert queries from Diana internal structures to Darwino
@@ -50,8 +44,6 @@ import static org.jnosql.diana.api.Condition.IN;
  * @since 0.0.4
  */
 final class QueryConverter {
-
-	private static final Set<Condition> NOT_APPENDABLE = EnumSet.of(IN, Condition.AND, Condition.OR);
 
 	private static final String[] ALL_SELECT = { "@All" }; //$NON-NLS-1$
 
@@ -64,14 +56,7 @@ final class QueryConverter {
 			documents = ALL_SELECT;
 		}
 
-		// TODO limits
-		int firstResult = (int) query.getFirstResult();
-		int maxResult = (int) query.getMaxResults();
-
 		StringBuilder result = new StringBuilder();
-		// TODO ordering
-		String[] sorts = query.getSorts().stream().map(s -> s.getName() + (s.getType() == SortType.DESC ? " d" : "")).toArray(String[]::new); //$NON-NLS-1$ //$NON-NLS-2$
-
 		if (query.getCondition().isPresent()) {
 			applyCollectionName(result, query.getDocumentCollection());
 			if(result.length() != 0) {
@@ -97,13 +82,15 @@ final class QueryConverter {
 	private static String getCondition(DocumentCondition condition) {
 		Document document = condition.getDocument();
 
+
+		String placeholder = toFormulaEntity(document.get());
 		// Convert special names
 		String name = document.getName();
 		if (StringUtil.equals(name, EntityConverter.ID_FIELD)) {
 			name = "@Text(@DocumentUniqueID)";
+			placeholder = toFormulaEntity(DominoUtils.toUnid(StringUtil.toString(document.get())));
 		}
-
-		String placeholder = toFormulaEntity(document.get());
+		
 		switch (condition.getCondition()) {
 		case EQUALS:
 			return infix("=", name, placeholder);
@@ -147,7 +134,7 @@ final class QueryConverter {
 		} else if(obj == null) {
 			return "\"\"";
 		} else {
-			return '"' + DominoUtils.escapeForFormulaString(obj.toString()) + "'";
+			return '"' + DominoUtils.escapeForFormulaString(obj.toString()) + '"';
 		}
 	}
 	

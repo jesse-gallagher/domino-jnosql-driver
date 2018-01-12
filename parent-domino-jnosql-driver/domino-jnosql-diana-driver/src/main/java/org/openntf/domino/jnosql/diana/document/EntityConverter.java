@@ -36,6 +36,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -54,6 +56,14 @@ final class EntityConverter {
 	 */
 	// TODO consider making this the store ID
 	public static final String NAME_FIELD = "Form"; //$NON-NLS-1$
+	
+	private static final Set<String> IGNORED_FIELDS = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+	static {
+		IGNORED_FIELDS.add("$$Key");
+		IGNORED_FIELDS.add("$UpdatedBy");
+		IGNORED_FIELDS.add("$Created");
+		IGNORED_FIELDS.add(NAME_FIELD);
+	}
 
 	private EntityConverter() {
 	}
@@ -84,9 +94,13 @@ final class EntityConverter {
 
 	private static List<Document> toDocuments(org.openntf.domino.Document doc) {
 		List<Document> result = new ArrayList<>();
-		result.add(Document.of(ID_FIELD, doc.getUniversalID()));
+		String key = doc.getItemValueString("$$Key");
+		if(StringUtil.isEmpty(key)) {
+			key = doc.getUniversalID();
+		}
+		result.add(Document.of(ID_FIELD, key));
 		result.addAll(toDocuments((Map<String, Object>)doc));
-		result = result.stream().filter(d -> !d.getName().equals(NAME_FIELD)).collect(Collectors.toList());
+		result = result.stream().filter(d -> !IGNORED_FIELDS.contains(d.getName())).collect(Collectors.toList());
 		return result;
 	}
 

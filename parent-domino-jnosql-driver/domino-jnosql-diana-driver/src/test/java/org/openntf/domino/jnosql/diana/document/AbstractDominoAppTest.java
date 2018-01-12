@@ -19,7 +19,7 @@
  * https://github.com/eclipse/jnosql-diana-driver/tree/master/couchbase-driver
  * https://github.com/eclipse/jnosql-artemis-extension/tree/master/couchbase-extension
  */
-package org.darwino.jnosql.diana.driver;
+package org.openntf.domino.jnosql.diana.document;
 
 import static com.ibm.commons.util.StringUtil.format;
 
@@ -28,14 +28,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.openntf.domino.AutoMime;
+import org.openntf.domino.Database;
 import org.openntf.domino.Session;
+import org.openntf.domino.Database.FTIndexOption;
 import org.openntf.domino.session.ISessionFactory;
 import org.openntf.domino.utils.Factory;
 import org.openntf.domino.utils.Factory.SessionType;
+import org.openntf.domino.utils.Factory.ThreadConfig;
 
 import com.ibm.commons.util.io.StreamUtil;
 
@@ -54,7 +59,7 @@ public abstract class AbstractDominoAppTest {
 		try {
 			NotesThread.sinitThread();
 			Factory.startup();
-			Factory.initThread(null);
+			Factory.initThread(new ThreadConfig(new Session.Fixes[0], AutoMime.WRAP_NONE, true));
 			
 			Factory.setSessionFactory(new ISessionFactory() {
 				private static final long serialVersionUID = 1L;
@@ -72,6 +77,8 @@ public abstract class AbstractDominoAppTest {
 			}, SessionType.CURRENT);
 			
 			BLANK_DB = instantiateDb("blank");
+			
+			Factory.getSession().getDatabase(BLANK_DB).createFTIndex(EnumSet.noneOf(FTIndexOption.class), false);
 		} catch (Throwable t) {
 			t.printStackTrace();
 			throw t;
