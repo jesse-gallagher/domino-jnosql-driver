@@ -4,7 +4,7 @@
 	
 	<groupId>org.openntf</groupId>
 	<artifactId>parent-domino-jnosql-driver</artifactId>
-	<version>0.0.4-SNAPSHOT</version>
+	<version>0.0.5-SNAPSHOT</version>
 	<name>Domino driver components for JNoSQL</name>
 	<url>http://openntf.org</url>
 	<packaging>pom</packaging>
@@ -18,7 +18,7 @@
 		<maven.javadoc.version>3.0.0</maven.javadoc.version>
 
         <tycho-version>1.0.0</tycho-version>
-		<jnosql-version>0.0.4-SNAPSHOT</jnosql-version>
+		<jnosql-version>0.0.5-SNAPSHOT</jnosql-version>
 		<hamcrest-all.version>1.3</hamcrest-all.version>
 		<junit-version>4.11</junit-version>
 		<weld-version>2.4.6.Final</weld-version>
